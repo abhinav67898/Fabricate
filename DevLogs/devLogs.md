@@ -1,0 +1,3 @@
+### These are my Dev Logs lol
+
+So, it's Day 02, and today I'll be learning how to program in Cpp soo let me just setup my Cpp Compiler which is some random shi called MSYS32? So... I have absolutely no idea of what MSYS2 Even is? lol Uhhh, so I am banned from reddit? ig lol, anyawys let's continue our installation of MYSYS2. Damn It has tons of shi lol, should've created a folder beforehand .... TwT
