@@ -157,7 +157,7 @@ int main() {
                 world.Draw();
                 player.Draw();
             EndMode2D();
-            DrawText(TextFormat("X : %.2f | Y: %.2f", player.x, player.y), 10, 10, 20, BLACK);d
+            DrawText(TextFormat("X : %.2f | Y: %.2f", player.x, player.y), 10, 10, 20, BLACK);
         EndDrawing();
         
     };
