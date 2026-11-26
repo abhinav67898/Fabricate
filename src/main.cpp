@@ -1,21 +1,18 @@
 #include <raylib.h>
 
-int windowHeight = 800;
-int windowWidth = 600;
+const int windowHeight = 800;
+const int windowWidth = 800;
+const int frameRate = 60;
+int ballX = 400;
+int ballY = 400;
 
 int main() {
     //Initialise Window 
-    InitWindow(windowHeight, windowWidth, "Fabricate");
+    InitWindow(windowWidth, windowHeight, "Fabricate");
+    SetTargetFPS(frameRate);
 
-    //Game Loop
     while(WindowShouldClose() == false) {
-        // Event Handling
-
-        // Updating Positions
-
-        // Drawings
-        BeginDrawing();
-        EndDrawing();
+        
     }
 
     CloseWindow();
