@@ -22,6 +22,12 @@ enum class Terrain {
     COAL
 };
 
+struct playerInventory {
+    int iron = 0;
+    int copper = 0;
+    int coal = 0;
+};
+
 class World {
     public: 
         int width;
@@ -29,7 +35,6 @@ class World {
         int tileSize;
         int number;
         Color tileColor;
-
         Terrain tiles[100][100];
 
         void Generate() {
@@ -91,9 +96,9 @@ class World {
 };
 
 class Player {
-    
     public: 
         Texture2D texture;
+        playerInventory inventory; // To add an item simply player.investory.iron++;
         float x;
         float y;
         float speed;
@@ -132,19 +137,20 @@ class Player {
 
 int main() {
     Player player;
+    World world;
     cout << " >> Player Intialized" << endl;
 
     Image image = {(void*)charactersprite_data[0], 16, 16, 1, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8};
     cout << ">> Image Object Intialized and Populated" << endl;
 
-    World world = {worldWidth, worldHeight, tileSize};
+    world = {worldWidth, worldHeight, tileSize};
 
     //Initialise Window   
     InitWindow(cellSize*40 , cellSize*40, "Fabricate");
     SetTargetFPS(frameRate);
     cout << ">> Window Created" << endl;
-    
-    player = {LoadTextureFromImage(image), (float)cellSize*10, (float)cellSize*10, 100.00f, 10};
+
+    player = {LoadTextureFromImage(image), {0} , (float)cellSize*10, (float)cellSize*10, 200.00f, 10};
     
     Camera2D camera = {{(float)cellSize*20, (float)cellSize*20}, {player.x, player.y}, 0.0f, 1.0f};
 
@@ -153,8 +159,19 @@ int main() {
 
         //Updates
         player.Update();
-
         camera.target = {player.x, player.y};
+
+        Vector2 mousePosition = GetScreenToWorld2D(GetMousePosition(), camera);
+        int mouseTileX = (int)floor(mousePosition.x/tileSize);
+        int mouseTileY = (int)floor(mousePosition.y/tileSize);
+
+
+        bool validTile = {
+            mouseTileX >=0 &&
+            mouseTileX < world.width &&
+            mouseTileY >=0 &&
+            mouseTileY < world.height
+        };
 
         //Making the Character
         BeginDrawing();
@@ -163,10 +180,36 @@ int main() {
             BeginMode2D(camera);
                 world.Draw();
                 player.Draw();
+                if(validTile) {
+                    DrawRectangleLines(mouseTileX * tileSize, mouseTileY * tileSize, tileSize, tileSize, RED);
+                }
+
+                if(validTile && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    switch(world.tiles[mouseTileY][mouseTileX]) {
+                        case Terrain::IRON: 
+                            player.inventory.iron++;
+                            break;
+
+                        case Terrain::COAL: 
+                            player.inventory.coal++;
+                            break;
+
+                        case Terrain::COPPER:
+                            player.inventory.copper++;
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+
             EndMode2D();
+            DrawText(TextFormat("X: %.2f | Y: %2.f", mousePosition.x, mousePosition.y), 10, 40, 20, BLACK);
             DrawText(TextFormat("X : %.2f | Y: %.2f", player.x, player.y), 10, 10, 20, BLACK);
+            DrawText(TextFormat("Iron: %d", player.inventory.iron), 10, 70, 20, WHITE);
+            DrawText(TextFormat("Copper: %d", player.inventory.copper), 10, 100, 20, WHITE);
+            DrawText(TextFormat("Coal: %d", player.inventory.coal), 10, 130, 20, WHITE);
         EndDrawing();
-        
     };
 
     UnloadTexture(player.texture);
