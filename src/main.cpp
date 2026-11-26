@@ -9,8 +9,8 @@ const int windowWidth = 800;
 const int frameRate = 60;
 int cellSize = 20;
 const int tileSize = 32;
-const int worldWidth = 100;
-const int worldHeight = 100;
+const int worldWidth = 50;
+const int worldHeight = 50;
 
 using namespace std;
 
@@ -33,9 +33,15 @@ class World {
         Terrain tiles[100][100];
 
         void Generate() {
+            Image perlinNoise = GenImagePerlinNoise(
+                worldWidth, worldHeight, 0, 0, 6.0f
+            );
+
             for(int i = 0; i < worldHeight; i++) {
                 for (int j = 0; j < worldWidth; j++) {
-                    number = GetRandomValue(1, 100);
+                    Color pixel = GetImageColor(perlinNoise, j, i);
+
+                    number = pixel.r;
 
                     if(number <= 60) {
                         tiles[i][j] = Terrain::GRASS;
@@ -49,7 +55,7 @@ class World {
                         tiles[i][j] = Terrain::MUD;
                     };
                 }
-            }    
+            }
         }
 
         void Draw() {
