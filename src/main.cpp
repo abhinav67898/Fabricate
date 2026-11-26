@@ -9,17 +9,17 @@ const int windowWidth = 800;
 const int frameRate = 60;
 int cellSize = 20;
 const int tileSize = 32;
-const int worldWidth = 50;
-const int worldHeight = 50;
+const int worldWidth = 100;
+const int worldHeight = 100;
 
 using namespace std;
 
 enum class Terrain {
     GRASS, 
-    DIRT,
-    STONE,
     WATER,
-    MUD
+    IRON,
+    COPPER,
+    COAL
 };
 
 class World {
@@ -34,7 +34,7 @@ class World {
 
         void Generate() {
             Image perlinNoise = GenImagePerlinNoise(
-                worldWidth, worldHeight, 0, 0, 6.0f
+                worldWidth, worldHeight, 0, 0, 2.0f
             );
 
             for(int i = 0; i < worldHeight; i++) {
@@ -43,16 +43,19 @@ class World {
 
                     number = pixel.r;
 
-                    if(number <= 60) {
+                    // 225 / 50% = 112
+                    // 225 / 20% = 45 
+                    // 225 / 10% = 23
+                    if(number <= 147) {
                         tiles[i][j] = Terrain::GRASS;
-                    } else if(number > 60 && number <=80) {
-                        tiles[i][j] = Terrain::DIRT;
-                    } else if(number > 80 && number <=90) {
-                        tiles[i][j] = Terrain::STONE;
-                    } else if(number > 90 && number <=95) {
-                        tiles[i][j] = Terrain::STONE;
-                    } else if(number > 95 && number <=100) {
-                        tiles[i][j] = Terrain::MUD;
+                    } else if(number > 147 && number <= 157) {
+                        tiles[i][j] = Terrain::WATER;
+                    } else if(number > 157 && number <= 180) {
+                        tiles[i][j] = Terrain::IRON;
+                    } else if(number > 180 && number <= 203) {
+                        tiles[i][j] = Terrain::COPPER;
+                    } else if(number > 203 && number <= 225) {
+                        tiles[i][j] = Terrain::COAL;
                     };
                 }
             }
@@ -66,20 +69,20 @@ class World {
                             DrawRectangle(x*tileSize, y*tileSize, tileSize, tileSize, GREEN);
                             break;
 
-                        case Terrain::STONE:
-                            DrawRectangle(x*tileSize, y*tileSize, tileSize, tileSize, GRAY);
-                            break;
-
-                        case Terrain::DIRT:
-                            DrawRectangle(x*tileSize, y*tileSize, tileSize, tileSize, BROWN);
-                            break;
-
                         case Terrain::WATER:
                             DrawRectangle(x*tileSize, y*tileSize, tileSize, tileSize, BLUE);
                             break;
 
-                        case Terrain::MUD:
-                            DrawRectangle(x*tileSize, y*tileSize, tileSize, tileSize, DARKBROWN);
+                        case Terrain::IRON:
+                            DrawRectangle(x*tileSize, y*tileSize, tileSize, tileSize, GRAY);
+                            break;
+
+                        case Terrain::COPPER:
+                            DrawRectangle(x*tileSize, y*tileSize, tileSize, tileSize, ORANGE);
+                            break;
+
+                        case Terrain::COAL:
+                            DrawRectangle(x*tileSize, y*tileSize, tileSize, tileSize, BLACK);
                             break;
                     }
                 }
@@ -155,8 +158,6 @@ int main() {
 
         //Making the Character
         BeginDrawing();
-            DrawFPS(10,10);
-
             ClearBackground(GREEN);
         
             BeginMode2D(camera);
