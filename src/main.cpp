@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include "../assets/Sprites/characterSprite.c"
+#include "../assets/Sprites/drillSprite.c"
 #include <iostream>
 #include <math.h>
 #include <raymath.h>
@@ -106,7 +107,18 @@ class World {
         }
 
         void DrawMachines() {
-            
+            for(int y = 0; y < height; y++) {
+                for(int x = 0; x < width; x++) {
+                    if(machinesTiles[y][x] == Machines::DRILL) {
+                        Vector2 positionDrill = {
+                            (float)(x*tileSize), 
+                            (float)(y*tileSize)
+                        };
+                        float scale = (float)tileSize/drillTexture.width;
+                        DrawTextureEx(drillTexture, positionDrill, 0.0f, scale, WHITE);
+                    }
+                }
+            }
         };
 };
 
@@ -158,6 +170,9 @@ int main() {
     Image image = {(void*)charactersprite_data[0], 16, 16, 1, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8};
     cout << ">> Image Object Intialized and Populated" << endl;
 
+    Image drillImage = {(void*)drillSprite_data[0], 16, 16, 1, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8};
+    cout << ">> Drill Object Intialized and Populated" << endl;
+
     world = {worldWidth, worldHeight, tileSize};
 
     //Initialise Window   
@@ -166,6 +181,8 @@ int main() {
     cout << ">> Window Created" << endl;
 
     player = {LoadTextureFromImage(image), {0} , (float)cellSize*10, (float)cellSize*10, 200.00f, 10};
+    world.drillTexture = LoadTextureFromImage(drillImage);
+    SetTextureFilter(world.drillTexture, TEXTURE_FILTER_POINT);
     
     Camera2D camera = {{(float)cellSize*20, (float)cellSize*20}, {player.x, player.y}, 0.0f, 1.0f};
 
@@ -194,6 +211,7 @@ int main() {
         
             BeginMode2D(camera);
                 world.Draw();
+                world.DrawMachines();
                 player.Draw();
                 if(validTile) {
                     DrawRectangleLines(mouseTileX * tileSize, mouseTileY * tileSize, tileSize, tileSize, RED);
@@ -218,10 +236,13 @@ int main() {
                     }
                 }
 
-                if(validTile && IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && player.inventory.iron > 5) {
+                if(validTile && IsKeyDown(KEY_P) && player.inventory.iron >= 5 && world.machinesTiles[mouseTileY][mouseTileX] == Machines::NONE) {
+                    cout << "Right Click Detected" << endl;
                     switch(world.tiles[mouseTileY][mouseTileX]) {
                         case Terrain::IRON:
-                            
+                            world.machinesTiles[mouseTileY][mouseTileX] = Machines::DRILL;
+                            player.inventory.iron -= 5;
+                            break;
                             
                     };
                 };
@@ -236,6 +257,7 @@ int main() {
     };
 
     UnloadTexture(player.texture);
+    UnloadTexture(world.drillTexture);
     CloseWindow();
     return 0;
 }
