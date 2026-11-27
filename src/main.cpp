@@ -22,6 +22,11 @@ enum class Terrain {
     COAL
 };
 
+enum class Machines {
+    NONE,
+    DRILL
+};
+
 struct playerInventory {
     int iron = 0;
     int copper = 0;
@@ -36,6 +41,8 @@ class World {
         int number;
         Color tileColor;
         Terrain tiles[100][100];
+        Machines machinesTiles[100][100];
+        Texture2D drillTexture;
 
         void Generate() {
             Image perlinNoise = GenImagePerlinNoise(
@@ -62,6 +69,10 @@ class World {
                     } else if(number > 203 && number <= 225) {
                         tiles[i][j] = Terrain::COAL;
                     };
+
+                    //Machine Generation
+                    machinesTiles[i][j] = Machines::NONE;
+
                 }
             }
         }
@@ -93,6 +104,10 @@ class World {
                 }
             }
         }
+
+        void DrawMachines() {
+            
+        };
 };
 
 class Player {
@@ -202,6 +217,14 @@ int main() {
                             break;
                     }
                 }
+
+                if(validTile && IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && player.inventory.iron > 5) {
+                    switch(world.tiles[mouseTileY][mouseTileX]) {
+                        case Terrain::IRON:
+                            
+                            
+                    };
+                };
 
             EndMode2D();
             DrawText(TextFormat("X: %.2f | Y: %2.f", mousePosition.x, mousePosition.y), 10, 40, 20, BLACK);
