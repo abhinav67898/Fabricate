@@ -28,6 +28,12 @@ enum class Machines {
     DRILL
 };
 
+struct MachineData {
+    Machines type = Machines::NONE;
+    float timer = 0.0f;
+    int storedResources = 0;
+};
+
 struct playerInventory {
     int iron = 0;
     int copper = 0;
@@ -42,7 +48,7 @@ class World {
         int number;
         Color tileColor;
         Terrain tiles[100][100];
-        Machines machinesTiles[100][100];
+        MachineData machinesTiles[100][100];
         Texture2D drillTexture;
 
         void Generate() {
@@ -72,7 +78,7 @@ class World {
                     };
 
                     //Machine Generation
-                    machinesTiles[i][j] = Machines::NONE;
+                    machinesTiles[i][j].type = Machines::NONE;
 
                 }
             }
@@ -109,13 +115,30 @@ class World {
         void DrawMachines() {
             for(int y = 0; y < height; y++) {
                 for(int x = 0; x < width; x++) {
-                    if(machinesTiles[y][x] == Machines::DRILL) {
+                    if(machinesTiles[y][x].type == Machines::DRILL) {
                         Vector2 positionDrill = {
                             (float)(x*tileSize), 
                             (float)(y*tileSize)
                         };
                         float scale = (float)tileSize/drillTexture.width;
                         DrawTextureEx(drillTexture, positionDrill, 0.0f, scale, WHITE);
+                    }
+                }
+            }
+        };
+
+        void UpdateMachines(float dt) {
+            for(int y = 0; y < height; y++) {
+                for(int x = 0; x < width; x++) {
+                    if(machinesTiles[y][x].type == Machines::DRILL) {
+                        if(machinesTiles[y][x].storedResources < 10) {
+                            machinesTiles[y][x].timer +=dt;
+                            if(machinesTiles[y][x].timer >= 2.0f) {
+                                machinesTiles[y][x].storedResources += 1;
+                                machinesTiles[y][x].timer -= 2;
+                                cout << ">> Storage of machine at " << y << ", " << x << "is: " << machinesTiles[y][x].storedResources << "\n";
+                            }
+                        }
                     }
                 }
             }
@@ -206,6 +229,7 @@ int main() {
         };
 
         //Making the Character
+        world.UpdateMachines(GetFrameTime());
         BeginDrawing();
             ClearBackground(GREEN);
         
@@ -215,37 +239,74 @@ int main() {
                 player.Draw();
                 if(validTile) {
                     DrawRectangleLines(mouseTileX * tileSize, mouseTileY * tileSize, tileSize, tileSize, RED);
-                }
+                };
 
                 if(validTile && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    if(world.machinesTiles[mouseTileY][mouseTileX].type != Machines::DRILL) {
+                        switch(world.tiles[mouseTileY][mouseTileX]) {
+                            case Terrain::IRON: 
+                                player.inventory.iron++;
+                                break;
+                            case Terrain::COAL: 
+                                player.inventory.coal++;
+                                break;
+                            case Terrain::COPPER:
+                                player.inventory.copper++;
+                                break;
+                            default:
+                                break;
+                        };
+                    };
+                };
+
+                if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+                    cout << ">> Right Mouse Cick detected \n";
+                    if(validTile) {
+                        cout << ">> Tile is Valid \n";
+                        if(player.inventory.iron >=5) {
+                            cout << "Player Has Sufficient Iron: " << player.inventory.iron <<"\n";
+                            if(world.machinesTiles[mouseTileY][mouseTileX].type == Machines::NONE) {
+                                switch(world.tiles[mouseTileY][mouseTileX]) {
+                                    case Terrain::IRON:
+                                        player.inventory.iron -= 5;
+                                        world.machinesTiles[mouseTileY][mouseTileX].type = Machines::DRILL;
+                                        break;
+                                    case Terrain::COAL:
+                                        player.inventory.iron -= 5;
+                                        world.machinesTiles[mouseTileY][mouseTileX].type = Machines::DRILL;
+                                        break;
+                                    case Terrain::COPPER:
+                                        player.inventory.iron -= 5;
+                                        world.machinesTiles[mouseTileY][mouseTileX].type = Machines::DRILL;
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            };
+                        };
+                    };
+                };
+
+                
+                if(IsKeyPressed(KEY_E) && world.machinesTiles[mouseTileY][mouseTileX].type == Machines::DRILL) {
+                    int temp = world.machinesTiles[mouseTileY][mouseTileX].storedResources;
                     switch(world.tiles[mouseTileY][mouseTileX]) {
-                        case Terrain::IRON: 
-                            player.inventory.iron++;
+                        case Terrain::IRON:
+                            player.inventory.iron += temp;
+                            world.machinesTiles[mouseTileY][mouseTileX].storedResources -= temp;
                             break;
-
-                        case Terrain::COAL: 
-                            player.inventory.coal++;
+                        case Terrain::COAL:
+                            player.inventory.coal += temp;
+                            world.machinesTiles[mouseTileY][mouseTileX].storedResources -= temp;
                             break;
-
                         case Terrain::COPPER:
-                            player.inventory.copper++;
-                            break;
-
+                            player.inventory.copper += temp;
+                            world.machinesTiles[mouseTileY][mouseTileX].storedResources -= temp;
+                            break;                            
                         default:
                             break;
                     }
                 }
-
-                if(validTile && IsKeyDown(KEY_P) && player.inventory.iron >= 5 && world.machinesTiles[mouseTileY][mouseTileX] == Machines::NONE) {
-                    cout << "Right Click Detected" << endl;
-                    switch(world.tiles[mouseTileY][mouseTileX]) {
-                        case Terrain::IRON:
-                            world.machinesTiles[mouseTileY][mouseTileX] = Machines::DRILL;
-                            player.inventory.iron -= 5;
-                            break;
-                            
-                    };
-                };
 
             EndMode2D();
             DrawText(TextFormat("X: %.2f | Y: %2.f", mousePosition.x, mousePosition.y), 10, 40, 20, BLACK);
