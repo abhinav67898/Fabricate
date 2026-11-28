@@ -231,12 +231,12 @@ class World {
         }
 
         void drawItems() {
-            for(int i = 0; i < 100; i++) {
-                for(int j = 0; j < 100; j++) {
-                    if(machinesTiles[j][i].item.type == Items::IRON) {
+            for(int y = 0; y < height; y++) {
+                for(int x = 0; x < width; x++) {
+                    if(machinesTiles[y][x].item.type == Items::IRON) {
                         Vector2 positionOres = {
-                            j * tileSize + 8.0f,
-                            i * tileSize + 8.0f
+                            x * tileSize + 8.0f,
+                            y * tileSize + 8.0f
                         };
 
                         DrawTextureEx(oresTextures[0], positionOres, 0.0f, 1.0f, WHITE);
