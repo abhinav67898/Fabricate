@@ -234,14 +234,59 @@ class World {
             for(int y = 0; y < height; y++) {
                 for(int x = 0; x < width; x++) {
                     if(machinesTiles[y][x].item.type == Items::IRON) {
-                        Vector2 positionOres = {
-                            x * tileSize + 8.0f,
-                            y * tileSize + 8.0f
+                        Vector2 dir = getDirectionVector(
+                            machinesTiles[y][x].direction
+                        );
+
+                        Vector2 center = {
+                            x * tileSize + tileSize / 2.0f,
+                            y * tileSize + tileSize / 2.0f
                         };
+
+                        Vector2 start = Vector2Subtract(
+                            center, Vector2Scale(dir, tileSize / 2.0f)
+                        );
+
+                        Vector2 end = Vector2Add(
+                            center, Vector2Scale(dir, tileSize / 2.0f)
+                        );
+
+                        Vector2 positionOres = Vector2Lerp(start, end, machinesTiles[y][x].item.progress);
+
+                        positionOres.x -= 8.0f;
+                        positionOres.y -= 8.0f;
 
                         DrawTextureEx(oresTextures[0], positionOres, 0.0f, 1.0f, WHITE);
                     }
                 }
+            }
+        }
+
+        void UpdateItems(float dt) {
+            for(int y = 0; y < height; y++) {
+                for(int x = 0; x < width; x++) {
+                    if(machinesTiles[y][x].type == Machines::CONVEYOR) {
+                        machinesTiles[y][x].item.progress += dt * 0.5f;
+                        machinesTiles[y][x].item.progress = Clamp(
+                            machinesTiles[y][x].item.progress, 0.0f, 1.0f
+                        );
+                    }
+                }
+            }
+        }
+
+        Vector2 getDirectionVector(Direction direction) {
+            switch(direction) {
+                case Direction::UP:
+                    return {0, -1};
+                case Direction::DOWN: 
+                    return {0, 1};
+                case Direction::RIGHT:
+                    return {1, 0};
+                case Direction::LEFT:
+                    return {-1, 0};
+                default:
+                    return {0, 0};
             }
         }
 };
@@ -338,6 +383,7 @@ int main() {
 
         world.UpdateMachines(GetFrameTime());
         world.UpdateConveyorAnimation(GetFrameTime());
+        world.UpdateItems(GetFrameTime());
 
         BeginDrawing();
             ClearBackground(GREEN);
