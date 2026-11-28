@@ -288,7 +288,7 @@ int main() {
                 };
 
                 
-                if(IsKeyPressed(KEY_E) && world.machinesTiles[mouseTileY][mouseTileX].type == Machines::DRILL) {
+                if(IsKeyPressed(KEY_E) && world.machinesTiles[mouseTileY][mouseTileX].type == Machines::DRILL && validTile) {
                     int temp = world.machinesTiles[mouseTileY][mouseTileX].storedResources;
                     switch(world.tiles[mouseTileY][mouseTileX]) {
                         case Terrain::IRON:
@@ -308,7 +308,14 @@ int main() {
                     }
                 }
 
+                
             EndMode2D();
+                if(validTile && world.machinesTiles[mouseTileY][mouseTileX].type == Machines::DRILL) {
+                    DrawText(
+                        TextFormat("Drill Storage: %d / 10", world.machinesTiles[mouseTileY][mouseTileX].storedResources),
+                        10, 160, 20, WHITE
+                    );
+                }
             DrawText(TextFormat("X: %.2f | Y: %2.f", mousePosition.x, mousePosition.y), 10, 40, 20, BLACK);
             DrawText(TextFormat("X : %.2f | Y: %.2f", player.x, player.y), 10, 10, 20, BLACK);
             DrawText(TextFormat("Iron: %d", player.inventory.iron), 10, 70, 20, WHITE);
